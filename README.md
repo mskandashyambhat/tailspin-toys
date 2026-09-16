@@ -42,6 +42,16 @@ npm run build      # prebuild migrates + seeds, then builds the static site
 npm run preview
 ```
 
+## Filter games
+
+The home page supports filtering the catalog by one or more categories and one publisher. Filters are represented in the URL, so filtered views can be bookmarked or shared:
+
+```text
+/?category=1&category=2&publisher=3
+```
+
+Because the site is fully prerendered, the static page renders the complete catalog and a small Astro script applies the URL-selected filters in the browser. The data-access helpers in `src/lib/games.ts` expose the equivalent injectable SQL filters for build-time consumers and unit tests.
+
 ## Database
 
 The SQLite database is built from `db/games.csv` — there is no live data to migrate.

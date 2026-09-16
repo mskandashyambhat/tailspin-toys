@@ -1,7 +1,13 @@
-import { eq, asc } from 'drizzle-orm';
+import { and, asc, eq, inArray } from 'drizzle-orm';
 import type { Database } from './db';
 import { games, categories, publishers } from '../../db/schema';
 import type { Game } from '../types/game';
+
+/** Optional category and publisher constraints for game listings. */
+export interface GameFilters {
+    categoryIds?: number[];
+    publisherId?: number;
+}
 
 const gameSelection = {
     id: games.id,
@@ -51,8 +57,20 @@ function baseGamesQuery(db: Database) {
 }
 
 /** All games ordered by title. */
-export async function getAllGames(db: Database): Promise<Game[]> {
-    const rows = await baseGamesQuery(db).orderBy(asc(games.title));
+export async function getAllGames(db: Database, filters?: GameFilters): Promise<Game[]> {
+    const conditions = [];
+
+    if (filters?.categoryIds && filters.categoryIds.length > 0) {
+        conditions.push(inArray(games.categoryId, filters.categoryIds));
+    }
+
+    if (filters?.publisherId !== undefined) {
+        conditions.push(eq(games.publisherId, filters.publisherId));
+    }
+
+    const rows = await baseGamesQuery(db)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(asc(games.title));
     return rows.map(mapGame);
 }
 

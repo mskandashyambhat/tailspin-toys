@@ -24,6 +24,59 @@ test.describe('Game Listing and Navigation', () => {
     });
   });
 
+  test('should filter games by category and publisher', async ({ page }) => {
+    await page.goto('/');
+    const gamesGrid = page.getByTestId('games-grid');
+    await expect(gamesGrid).toBeVisible();
+    const allGameCount = await page.getByTestId('game-card').count();
+
+    await test.step('Apply a category filter', async () => {
+      await page.getByLabel('Strategy').check();
+      await page.getByTestId('apply-filters').click();
+      await expect(page).toHaveURL(/category=/);
+      await expect(page.getByTestId('filter-summary')).toContainText('games match');
+      expect(await page.getByTestId('game-card').evaluateAll((cards) =>
+        cards.filter((card) => !card.classList.contains('hidden')).length,
+      )).toBeLessThan(allGameCount);
+    });
+
+    await test.step('Select multiple categories', async () => {
+      await page.getByLabel('Puzzle').check();
+      await page.getByTestId('apply-filters').click();
+      await expect(page).toHaveURL(/category=.*category=/);
+      await expect(page.getByLabel('Strategy')).toBeChecked();
+      await expect(page.getByLabel('Puzzle')).toBeChecked();
+    });
+
+    await test.step('Combine category and publisher filters', async () => {
+      await page.getByLabel('Publisher').selectOption({ label: 'CodeForge Studios' });
+      await page.getByTestId('apply-filters').click();
+      await expect(page).toHaveURL(/category=.*publisher=/);
+
+      const visibleCards = page.locator('[data-testid="game-card"]:not(.hidden)');
+      await expect(visibleCards).toHaveCount(2);
+      await expect(visibleCards.first()).toContainText('CodeForge Studios');
+      await expect(page.getByLabel('Strategy')).toBeChecked();
+      await expect(page.getByLabel('Puzzle')).toBeChecked();
+      await expect(page.getByLabel('Publisher')).toHaveValue(/^\d+$/);
+    });
+  });
+
+  test('should reset game filters and show an empty state for unmatched filters', async ({ page }) => {
+    await test.step('Show an empty state for an unmatched filter', async () => {
+      await page.goto('/?category=99999');
+      await expect(page.getByTestId('filtered-empty-state')).toBeVisible();
+      await expect(page.getByTestId('games-grid')).toBeHidden();
+    });
+
+    await test.step('Reset filters', async () => {
+      await page.getByTestId('reset-filters').click();
+      await expect(page).toHaveURL('/');
+      await expect(page.getByTestId('games-grid')).toBeVisible();
+      await expect(page.getByTestId('filtered-empty-state')).toBeHidden();
+    });
+  });
+
   test('should navigate to correct game details page when clicking on a game', async ({ page }) => {
     let gameId: string | null;
     let gameTitle: string | null;
