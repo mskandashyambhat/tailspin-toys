@@ -5,6 +5,7 @@ import { createDatabaseConnection, executeMigrationQueries } from '../src/lib/db
 
 const here = dirname(fileURLToPath(import.meta.url));
 
+/** Applies generated Drizzle migrations to the configured SQLite database. */
 async function run(): Promise<void> {
     const { db, sqlite } = createDatabaseConnection();
     await migrate(

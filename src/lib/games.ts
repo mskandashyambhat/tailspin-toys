@@ -25,6 +25,9 @@ type GameSelectionRow = {
     publisherName: string | null;
 };
 
+/**
+ * Maps a joined games/categories/publishers row into the app-facing Game type.
+ */
 function mapGame(row: GameSelectionRow): Game {
     return {
         id: row.id,
@@ -42,6 +45,9 @@ function mapGame(row: GameSelectionRow): Game {
     };
 }
 
+/**
+ * Shared base query that selects game rows with optional category/publisher data.
+ */
 function baseGamesQuery(db: Database) {
     return db
         .select(gameSelection)
