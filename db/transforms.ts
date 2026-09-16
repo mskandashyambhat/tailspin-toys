@@ -95,14 +95,17 @@ export function parseGamesCsv(content: string): GameCsvRow[] {
         }));
 }
 
+/** Description text used for generated category records during seeding. */
 export function categoryDescription(name: string): string {
     return `Collection of ${name} games available for crowdfunding`;
 }
 
+/** Description text used for generated publisher records during seeding. */
 export function publisherDescription(name: string): string {
     return `${name} is a game publisher seeking funding for exciting new titles`;
 }
 
+/** Appends the crowdfunding CTA used in seeded game descriptions. */
 export function gameDescription(rawDescription: string): string {
     return rawDescription + CROWDFUNDING_BLURB;
 }

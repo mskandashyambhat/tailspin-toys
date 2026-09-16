@@ -16,6 +16,9 @@ import {
 
 const here = dirname(fileURLToPath(import.meta.url));
 
+/**
+ * Upserts category names and returns a lookup map from name to category id.
+ */
 async function upsertCategories(db: Database, names: string[]): Promise<Map<string, number>> {
     const map = new Map<string, number>();
     for (const name of names) {
@@ -33,6 +36,9 @@ async function upsertCategories(db: Database, names: string[]): Promise<Map<stri
     return map;
 }
 
+/**
+ * Upserts publisher names and returns a lookup map from name to publisher id.
+ */
 async function upsertPublishers(db: Database, names: string[]): Promise<Map<string, number>> {
     const map = new Map<string, number>();
     for (const name of names) {
